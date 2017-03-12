@@ -30,7 +30,7 @@ describe('The cli', () => {
 
     beforeEach(() => {
       project = {};
-      spyOn(Project, 'establish').and.returnValue(project);
+      establish = spyOn(Project, 'establish').and.returnValue(project);
     });
 
     it('resolves to nothing', done => {
@@ -54,8 +54,18 @@ describe('The cli', () => {
         .catch(fail).then(done);
     });
 
-    it('does not catch Project.establish()', () => {
-      pending('Does it even make sense to test this?');
+    it('does not catch Project.establish()', done => {
+      establish.and.callFake(() => new Promise((resolve, reject) => reject()));
+
+      fs.mkdirp(path.join(process.cwd(), aureliaProject))
+        .then(() => cli._establishProject({
+          runningLocally: true
+        }))
+        .then(() => {
+          fail('expected promise to be rejected.');
+          done();
+        })
+        .catch(done);
     });
 
     it(`logs 'No Aurelia project found.'`, done => {
