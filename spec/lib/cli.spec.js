@@ -23,6 +23,10 @@ describe('The cli', () => {
 
     aureliaProject = 'aurelia_project';
   });
+  
+  afterEach(() => {
+    mockfs.restore();
+  });
 
   describe('The _establishProject() function', () => {
     let project;
@@ -129,11 +133,19 @@ describe('The cli', () => {
 
     describe('The -v arg', getVersionSpec('-v'));
 
-    it('uses the _establishProject() function', () => {
-      spyOn(cli, '_establishProject').and.callThrough();
+    it('uses the _establishProject() function', d => {
+      const project = {};
+      spyOn(cli, '_establishProject').and.returnValue(new Promise(resolve => {
+        resolve(project);
+      }));
+      spyOn(cli.container, 'registerInstance');
+      spyOn(cli, 'createCommand').and.returnValue({ execute: () => {} });
       
-      cli.run();
-      expect(cli._establishProject).toHaveBeenCalledWith(cli.options);
+      cli.run()
+      .then(() => {
+        expect(cli._establishProject).toHaveBeenCalledWith(cli.options);
+        d();
+      }).catch(f => d.fail(f));
     });
 
     it('registers the project instance', done => {

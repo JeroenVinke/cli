@@ -24,6 +24,10 @@ describe('The project module', () => {
       }
     });
   });
+  
+  afterEach(() => {
+    mockfs.restore();
+  });
 
   describe('The resolveGenerator() function', () => {
     it('resolves to teh generators location', done => {
