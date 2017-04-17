@@ -156,6 +156,23 @@ describe('The PackageAnalyzer', () => {
     .catch(e => done.fail(e));
   });
 
+  it('analyze() uses browser field in package.json as main file if present (and if it\'s a string)', done => {
+    // setup mock package.json
+    const fsConfig = {};
+    let json = '{ "name": "my-package", "main": "index.js", "browser": "alternative-main.js" }';
+    fsConfig[path.join('node_modules/my-package', 'package.json')] = json;
+    fsConfig[project.paths.root] = {};
+    mockfs(fsConfig);
+
+    sut.analyze('my-package')
+    .then(description => {
+      expect(description.loaderConfig.name).toBe('my-package');
+      expect(description.loaderConfig.path).toBe('..\\node_modules\\my-package\\alternative-main');
+      done();
+    })
+    .catch(e => done.fail(e));
+  });
+
   it('analyze() works when there is no package.json. Uses index.js as the main file', done => {
     // setup mock package.json
     const fsConfig = {};

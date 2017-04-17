@@ -6,5 +6,6 @@ module.exports = class Bundler {
     this.interpretBuildOptions = jasmine.createSpy('interpretBuildOptions');
     this.configureDependency = jasmine.createSpy('configureDependency');
     this.addFile = jasmine.createSpy('addFile');
+    this.getExcludedDeps = jasmine.createSpy('getExcludedDeps').and.returnValue([]);
   }
 };
