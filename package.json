@@ -48,6 +48,7 @@
     "latest-version": "^3.1.0",
     "mock-fs": "^4.2.0",
     "nodemon": "^1.11.0",
+    "preprocess": "^3.1.0",
     "require-dir": "^0.3.1",
     "run-sequence": "^1.2.2",
     "yargs": "^7.0.2"
