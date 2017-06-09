@@ -1,7 +1,7 @@
 import * as gulp from 'gulp';
-import * as minimatch from "minimatch";
-import * as gulpWatch from "gulp-watch";
-import * as debounce from "debounce";
+import * as minimatch from 'minimatch';
+import * as gulpWatch from 'gulp-watch';
+import * as debounce from 'debounce';
 import { build } from 'aurelia-cli';
 import * as project from '../aurelia.json';
 import transpile from './transpile';

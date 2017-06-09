@@ -2,7 +2,7 @@ import * as gulp from 'gulp';
 import {Server as Karma} from 'karma';
 import {CLIOptions} from 'aurelia-cli';
 import build from './build';
-import {watch} from './watch';
+import watch from './watch';
 import * as path from 'path';
 
 let serve = gulp.series(
