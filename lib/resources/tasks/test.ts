@@ -5,29 +5,28 @@ import build from './build';
 import watch from './watch';
 import * as path from 'path';
 
-let serve = gulp.series(
-  build,
-  done => {
-    new Karma({
-      configFile: path.join(__dirname, '/../../karma.conf.js'),
-      singleRun: !CLIOptions.hasFlag('watch')
-    }, done).start();
-  }
-);
-
-function log(message) {
-  console.log(message); //eslint-disable-line no-console
-}
+let karma = done => {
+  new Karma({
+    configFile: path.join(__dirname, '/../../karma.conf.js'),
+    singleRun: !CLIOptions.hasFlag('watch')
+  }, done).start();
+};
 
 let unit;
 
 if (CLIOptions.hasFlag('watch')) {
-  unit = gulp.parallel(
-    serve,
-    done => { watch(); done(); }
+  unit = gulp.series(
+    build,
+    gulp.parallel(
+      done => { watch(); done(); },
+      karma
+    )
   );
 } else {
-  unit = serve;
+  unit = gulp.series(
+    build,
+    karma
+  );
 }
 
 export { unit as default };
