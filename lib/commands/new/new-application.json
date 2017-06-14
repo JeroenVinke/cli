@@ -53,7 +53,7 @@
       "type": "input-select",
       "nextActivity": 400,
       "question": "Which module loader / bundler would you like to use?",
-      "stateProperty": "buildsystem",
+      "stateProperty": "loaderBundler",
       "options": [
         {
           "displayName": "RequireJS",
@@ -75,7 +75,7 @@
     {
       "type": "branch-switch",
       "id": 400,
-      "stateProperty": "buildsystem",
+      "stateProperty": "loaderBundler",
       "branches": [
         {
           "case": "requirejs",
@@ -130,6 +130,18 @@
         "buildsystem": {
           "id": "webpack",
           "displayName": "Webpack"
+        },
+        "build": {
+          "options": {
+            "server": "dev",
+            "extractCss": "prod",
+            "coverage": "dev"
+          }
+        },
+        "platform": {
+          "port": 8080,
+          "hmr": false,
+          "open": false
         }
       }
     },
@@ -338,11 +350,7 @@
       "stateProperty": "buildsystem",
       "branches": [
         {
-          "case": "requirejs",
-          "nextActivity": 1150
-        },
-        {
-          "case": "systemjs",
+          "case": "cli",
           "nextActivity": 1150
         },
         {
