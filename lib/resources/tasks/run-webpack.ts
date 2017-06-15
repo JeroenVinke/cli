@@ -1,10 +1,10 @@
 import {config} from './build';
-import webpack from 'webpack';
-import Server from 'webpack-dev-server';
-import open from 'opn';
-import yargs from 'yargs';
-import url from 'url';
-import project from '../aurelia.json';
+import * as webpack from 'webpack';
+import * as Server from 'webpack-dev-server';
+import * as open from 'opn';
+import * as yargs from 'yargs';
+import * as url from 'url';
+import * as project from '../aurelia.json';
 import {CLIOptions} from 'aurelia-cli';
 
 const argv = yargs.argv;

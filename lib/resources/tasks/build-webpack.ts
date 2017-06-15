@@ -1,6 +1,6 @@
-import webpackConfig from '../../webpack.config';
-import webpack from 'webpack';
-import project from '../aurelia.json';
+import * as webpackConfig from '../../webpack.config';
+import * as webpack from 'webpack';
+import * as project from '../aurelia.json';
 import {CLIOptions, Configuration} from 'aurelia-cli';
 
 const buildOptions = new Configuration(project.build.options);
