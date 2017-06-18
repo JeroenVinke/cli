@@ -377,7 +377,7 @@
     },
     {
       "id": 1150,
-      "type": "input-multiselect",
+      "type": "input-select",
       "nextActivity": 1170,
       "question": "Would you like to configure unit testing?",
       "stateProperty": "unitTestRunner",
@@ -402,50 +402,41 @@
     },
     {
       "id": 1160,
-      "type": "input-select",
-      "nextActivity": 1161,
-      "question": "Would you like to configure unit testing?",
-      "stateProperty": "unitTestRunner",
+      "type": "input-multiselect",
+      "nextActivity": 1170,
+      "question": "Which test runners would you like to use?",
       "options": [
         {
-          "displayName": "Yes",
-          "description": "Configure your app with Jasmine and Karma.",
-          "value": {
-            "id": "karma",
-            "displayName": "Karma and Jest"
-          }
+          "displayName": "None",
+          "description": "Skip testing. My code is always perfect anyway."
         },
         {
-          "displayName": "No",
-          "description": "Skip testing. My code is always perfect anyway.",
-          "value": {
-            "id": "none",
-            "displayName": "None"
-          }
-        }
-      ]
-    },
-    {
-      "id": 1161,
-      "type": "input-select",
-      "nextActivity": 1170,
-      "question": "Would you like to configure integration testing?",
-      "stateProperty": "integrationTestRunner",
-      "options": [
-        {
-          "displayName": "Yes",
-          "description": "Configure your app with Protractor.",
+          "displayName": "Protractor",
+          "description": "Configure your app with Jasmine and Karma.",
+          "stateProperty": "integrationTestRunner",
           "value": {
             "id": "protractor",
             "displayName": "Protractor"
           }
         },
         {
-          "displayName": "No",
-          "description": "Skip testing. My code is always perfect anyway.",
+          "displayName": "Karma",
+          "description": "Configure the app with Karma and Jasmine",
+          "stateProperty": "unitTestRunner",
+          "type": "array",
           "value": {
-            "id": "none",
-            "displayName": "None"
+            "id": "karma",
+            "displayName": "Karma"
+          }
+        },
+        {
+          "displayName": "Jest",
+          "description": "Configure the app with Jest and Jasmine",
+          "stateProperty": "unitTestRunner",
+          "type": "array",
+          "value": {
+            "id": "jest",
+            "displayName": "Jest"
           }
         }
       ]
