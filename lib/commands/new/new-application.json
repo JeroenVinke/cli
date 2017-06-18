@@ -186,7 +186,7 @@
         },
         {
           "case": "custom",
-          "nextActivity": 1100
+          "nextActivity": 1090
         }
       ]
     },
@@ -202,7 +202,21 @@
         }
       }
     },
-
+    {
+      "type": "branch-switch",
+      "id": 1090,
+      "stateProperty": "buildsystem",
+      "branches": [
+        {
+          "case": "cli",
+          "nextActivity": 1100
+        },
+        {
+          "case": "webpack",
+          "nextActivity": 1110
+        }
+      ]
+    },
     {
       "id": 1100,
       "type": "input-select",
@@ -363,7 +377,7 @@
     },
     {
       "id": 1150,
-      "type": "input-select",
+      "type": "input-multiselect",
       "nextActivity": 1170,
       "question": "Would you like to configure unit testing?",
       "stateProperty": "unitTestRunner",
@@ -397,7 +411,7 @@
           "displayName": "Yes",
           "description": "Configure your app with Jasmine and Karma.",
           "value": {
-            "id": "karma&jest",
+            "id": "karma",
             "displayName": "Karma and Jest"
           }
         },
