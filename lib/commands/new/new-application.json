@@ -144,6 +144,21 @@
           "port": 8080,
           "hmr": false,
           "open": false
+        },
+        "unitTestRunner": [{
+          "id": "jest",
+          "displayName": "Jest"
+        }, {
+          "id": "karma",
+          "displayName": "Karma"
+        }],
+        "testFramework": {
+          "id": "jasmine",
+          "displayName": "Jasmine"
+        },
+        "integrationTestRunner": {
+          "id": "protractor",
+          "displayName": "Protractor"
         }
       }
     },
@@ -403,27 +418,21 @@
     {
       "id": 1160,
       "type": "input-multiselect",
-      "nextActivity": 1170,
-      "question": "Which test runners would you like to use?",
+      "nextActivity": 1165,
+      "question": "Which unit test runners would you like to use?",
+      "stateProperty": "unitTestRunner",
       "options": [
         {
           "displayName": "None",
-          "description": "Skip testing. My code is always perfect anyway."
-        },
-        {
-          "displayName": "Protractor",
-          "description": "Configure your app with Jasmine and Karma.",
-          "stateProperty": "integrationTestRunner",
+          "description": "Skip testing. My code is always perfect anyway.",
           "value": {
-            "id": "protractor",
-            "displayName": "Protractor"
+            "id": "none",
+            "displayName": "None"
           }
         },
         {
           "displayName": "Karma",
-          "description": "Configure the app with Karma and Jasmine",
-          "stateProperty": "unitTestRunner",
-          "type": "array",
+          "description": "Configure your app with Karma and Jasmine",
           "value": {
             "id": "karma",
             "displayName": "Karma"
@@ -431,12 +440,35 @@
         },
         {
           "displayName": "Jest",
-          "description": "Configure the app with Jest and Jasmine",
-          "stateProperty": "unitTestRunner",
-          "type": "array",
+          "description": "Configure your app with Jest and Jasmine",
           "value": {
             "id": "jest",
             "displayName": "Jest"
+          }
+        }
+      ]
+    },
+    {
+      "id": 1165,
+      "type": "input-select",
+      "nextActivity": 1170,
+      "question": "Would you like to configure integration testing?",
+      "stateProperty": "integrationTestRunner",
+      "options": [
+        {
+          "displayName": "Protractor",
+          "description": "Configure your app with Protractor",
+          "value": {
+            "id": "protractor",
+            "displayName": "Protractor"
+          }
+        },
+        {
+          "displayName": "No",
+          "description": "Skip testing. My code is always perfect anyway.",
+          "value": {
+            "id": "none",
+            "displayName": "None"
           }
         }
       ]

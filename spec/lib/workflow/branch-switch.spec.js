@@ -7,8 +7,8 @@ describe('The BranchSwitch module', () => {
     sut = new (require('../../../lib/workflow/activities/branch-switch'));
   });
 
-  it('finds the correct branch (as string)', () => {
-    let branchswitch = {
+  it('finds the correct branch (as array)', () => {
+    let branchswitch = Object.assign(sut, {
       stateProperty: 'unitTestRunner',
       branches: [{
         case: 'jest',
@@ -17,7 +17,30 @@ describe('The BranchSwitch module', () => {
         case: 'karma',
         nextActivity: 15
       }]
-    };
+    });
+    let next = jasmine.createSpy('next');
+
+    sut.execute.call(branchswitch, {
+      state: {
+        unitTestRunner: ['something', 'else', 'karma']
+      },
+      next: next
+    });
+
+    expect(next).toHaveBeenCalledWith(15);
+  });
+
+  it('finds the correct branch (as string)', () => {
+    let branchswitch = Object.assign(sut, {
+      stateProperty: 'unitTestRunner',
+      branches: [{
+        case: 'jest',
+        nextActivity: 30
+      }, {
+        case: 'karma',
+        nextActivity: 15
+      }]
+    });
     let next = jasmine.createSpy('next');
 
     sut.execute.call(branchswitch, {
@@ -31,7 +54,7 @@ describe('The BranchSwitch module', () => {
   });
 
   it('finds the correct branch (as object)', () => {
-    let branchswitch = {
+    let branchswitch = Object.assign(sut, {
       stateProperty: 'unitTestRunner',
       branches: [{
         case: 'jest',
@@ -40,7 +63,7 @@ describe('The BranchSwitch module', () => {
         case: 'karma',
         nextActivity: 15
       }]
-    };
+    });
     let next = jasmine.createSpy('next');
 
     sut.execute.call(branchswitch, {
@@ -56,7 +79,7 @@ describe('The BranchSwitch module', () => {
   });
 
   it('uses default branch if there is no matching branch', () => {
-    let branchswitch = {
+    let branchswitch = Object.assign(sut, {
       stateProperty: 'unitTestRunner',
       branches: [{
         case: 'jest',
@@ -65,7 +88,7 @@ describe('The BranchSwitch module', () => {
         case: 'default',
         nextActivity: 15
       }]
-    };
+    });
     let next = jasmine.createSpy('next');
 
     sut.execute.call(branchswitch, {

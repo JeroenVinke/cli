@@ -17,21 +17,20 @@ describe('The InputMultiselect module', () => {
 
   it('stores selected answers on the state', done => {
     let options = [{
-      displayName: 'Protractor',
+      displayName: 'Jest',
       description: 'Configure your app with Jasmine and Karma.',
-      stateProperty: 'integrationTestRunner',
-      value: 'protractor'
+      value: 'jest'
     },
     {
       displayName: 'Karma',
       description: 'Configure the app with Karma and Jasmine',
-      stateProperty: 'unitTestRunner',
       value: 'karma'
     }];
     let definition = Object.assign(sut, {
       id: 1160,
       type: 'input-multiselect',
       nextActivity: 1170,
+      stateProperty: 'unitTestRunner',
       question: 'Which test runners would you like to use?',
       options: options
     });
@@ -45,9 +44,7 @@ describe('The InputMultiselect module', () => {
 
     sut.execute.call(definition, context)
     .then(() => {
-      console.log(context.state);
-      expect(context.state.unitTestRunner).toBe('karma');
-      expect(context.state.integrationTestRunner).toBe('protractor');
+      expect(context.state.unitTestRunner).toEqual(['jest', 'karma']);
 
       done();
     }).catch(e => done.fail(e));
@@ -87,13 +84,11 @@ describe('The InputMultiselect module', () => {
     let options = [{
       displayName: 'Protractor',
       description: 'Configure your app with Protractor',
-      stateProperty: 'integrationTestRunner',
       type: 'array',
       value: 'protractor'
     }, {
       displayName: 'Karma',
       description: 'Configure your app with Jasmine and Karma.',
-      stateProperty: 'integrationTestRunner',
       type: 'array',
       value: 'karma'
     }];
@@ -101,6 +96,7 @@ describe('The InputMultiselect module', () => {
       id: 1160,
       type: 'input-multiselect',
       nextActivity: 1170,
+      stateProperty: 'integrationTestRunner',
       question: 'Which test runners would you like to use?',
       options: options
     });
