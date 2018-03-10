@@ -1,10 +1,12 @@
 'use strict';
-const AuRun = require('./requirejs/au-run');
+const RequireJSAuRun = require('./requirejs/au-run');
+const RequireJSAuTest = require('./requirejs/au-test');
+const RequireJSAuLint = require('./requirejs/au-lint');
 
 module.exports = {
   requirejs: {
-    AuRunDoesNotThrowCommandLineErrors: AuRun.AuRunDoesNotThrowCommandLineErrors,
-    AuRunLaunchesServer: AuRun.AuRunLaunchesServer,
-    AuRunAppLaunchesWithoutJavascriptErrors: AuRun.AuRunAppLaunchesWithoutJavascriptErrors
+    run: RequireJSAuRun,
+    test: RequireJSAuTest,
+    lint: RequireJSAuLint
   }
 };

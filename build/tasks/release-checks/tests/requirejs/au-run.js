@@ -1,43 +1,29 @@
 'use strict';
 const Test = require('../test');
-const { spawn } = require('child_process');
-const LogManager = require('aurelia-logging');
-const { checkForJavascriptErrors, killProc } = require('../../utils');
+const ExecuteCommand = require('../../tasks/execute-command');
+const CheckForJavascriptErrors = require('../../tasks/check-javascript-errors');
+const TakeScreenShotOfPage = require('../../tasks/take-screenshot-of-page');
+const StepRunner = require('../../step-runner');
+const path = require('path');
+const fs = require('fs');
 
 class AuRunDoesNotThrowCommandLineErrors extends Test {
   constructor() {
     super('au run does not throw commandline errors');
   }
 
+  onOutput(message) {
+    this.logger.debug(message);
+
+    if (message.indexOf('BrowserSync Available') > -1) {
+      this.success();
+      this.executeCommand.stop();
+    }
+  }
+
   execute() {
-    const logger = LogManager.getLogger('AuRunDoesNotThrowCommandLineErrors');
-
-    return new Promise((resolve, reject) => {
-      const proc = spawn('au', ['run', '--watch']);
-
-      proc.stdout.on('data', (data) => {
-        logger.debug(`stdout: ${data}`);
-        if (data.indexOf('error') > -1) {
-          killProc(proc);
-          reject();
-        }
-        if (data.indexOf('BrowserSync Available') > -1) {
-          killProc(proc);
-          resolve();
-        }
-      });
-
-      proc.stderr.on('data', (data) => {
-        logger.error(`stderr: ${data}`);
-        killProc(proc);
-        reject(`au run had error: ${data}`);
-      });
-
-      proc.on('close', (code) => {
-        killProc(proc);
-        reject(`au run exited with code code ${code}`);
-      });
-    });
+    this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
+    return this.executeCommand.execute();
   }
 }
 
@@ -46,31 +32,68 @@ class AuRunLaunchesServer extends Test {
     super('au run launches server');
   }
 
+  onOutput(message) {
+    this.logger.debug(message);
+
+    if (message.indexOf('Application Available At: http://localhost') > -1) {
+      this.success();
+      this.executeCommand.stop();
+    }
+  }
+
   execute() {
-    const logger = LogManager.getLogger('AuRunLaunchesServer');
+    this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
+    return this.executeCommand.execute();
+  }
+}
 
-    return new Promise((resolve, reject) => {
-      const proc = spawn('au', ['run', '--watch']);
+class AuRunWatchPicksUpFileChanges extends Test {
+  constructor(fileToChange) {
+    super('au run --watch picks up file changes');
 
-      proc.stdout.on('data', (data) => {
-        logger.debug(`stdout: ${data}`);
-        if (data.indexOf('Application Available At: http://localhost') > -1) {
-          killProc(proc);
-          resolve();
+    this.fileToChange = fileToChange || path.join('src', 'app.html');
+  }
+
+  changeFile() {
+    return new Promise(resolve => {
+      const fullPath = path.join(this.context.workingDirectory, this.fileToChange);
+
+      this.logger.debug(`changing file ${fullPath}`);
+
+      fs.readFile(fullPath, 'utf-8', (err, data) => {
+        if (err) {
+          throw err;
         }
-      });
 
-      proc.stderr.on('data', (data) => {
-        logger.error(`stderr: ${data}`);
-        killProc(proc);
-        reject(`au run had error: ${data}`);
-      });
+        fs.writeFile(fullPath, data + ' ', 'utf-8', (error) => {
+          if (error) {
+            throw error;
+          }
 
-      proc.on('close', (code) => {
-        killProc(proc);
-        reject(`au run exited with code code ${code}`);
+          resolve();
+        });
       });
     });
+  }
+
+  onOutput(message) {
+    this.logger.debug(message);
+
+    if (isApplicationAvailableMessage(message)) {
+      setTimeout(() => this.changeFile(), 1000);
+    }
+
+    if (message.indexOf('to pending build changes') > -1) {
+      this.success();
+      this.executeCommand.stop();
+    }
+  }
+
+  execute(context) {
+    this.context = context;
+
+    this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
+    return this.executeCommand.execute();
   }
 }
 
@@ -79,42 +102,57 @@ class AuRunAppLaunchesWithoutJavascriptErrors extends Test {
     super('au run app launches without javascript errors');
   }
 
-  execute() {
-    const logger = LogManager.getLogger('AuRunAppLaunchesWithoutJavascriptErrors');
+  onOutput(message) {
+    this.logger.debug(message);
 
-    return new Promise((resolve, reject) => {
-      const proc = spawn('au', ['run', '--watch']);
+    if (isApplicationAvailableMessage(message)) {
+      const url = getURL(message);
 
-      proc.stdout.on('data', (data) => {
-        logger.debug(`stdout: ${data}`);
-        if (data.indexOf('Application Available At: http://localhost') > -1) {
-          const url = getURL(data);
-          logger.debug(`starting puppeteer at url ${url}`);
+      const checkJavascriptErrorsTask = new CheckForJavascriptErrors(url);
 
-          return checkForJavascriptErrors(url)
-          .then(() => {
-            killProc(proc);
-            resolve();
-          })
-          .catch(e => {
-            killProc(proc);
-            reject(e);
-          });
-        }
+      return new StepRunner(checkJavascriptErrorsTask).run()
+      .then(() => {
+        this.success();
+        this.executeCommand.stop();
       });
-
-      proc.stderr.on('data', (data) => {
-        logger.error(`stderr: ${data}`);
-        killProc(proc);
-        reject(`au run had error: ${data}`);
-      });
-
-      proc.on('close', (code) => {
-        killProc(proc);
-        reject(`au run exited with code code ${code}`);
-      });
-    });
+    }
   }
+
+  execute() {
+    this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
+    return this.executeCommand.execute();
+  }
+}
+
+class AuRunRendersPage extends Test {
+  constructor() {
+    super('au run renders page');
+  }
+
+  onOutput(context, message) {
+    this.logger.debug(message);
+
+    if (isApplicationAvailableMessage(message)) {
+      const url = getURL(message);
+
+      const screenshot = new TakeScreenShotOfPage(url, path.join(context.resultOutputFolder, 'screenshot-of-au-run.png'));
+
+      return new StepRunner(screenshot).run()
+      .then(() => {
+        this.success();
+        this.executeCommand.stop();
+      });
+    }
+  }
+
+  execute(context) {
+    this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(context, msg));
+    return this.executeCommand.execute();
+  }
+}
+
+function isApplicationAvailableMessage(msg) {
+  return msg.indexOf('Application Available At: http://localhost') > -1;
 }
 
 function getURL(msg) {
@@ -126,5 +164,7 @@ function getURL(msg) {
 module.exports = {
   AuRunDoesNotThrowCommandLineErrors: AuRunDoesNotThrowCommandLineErrors,
   AuRunLaunchesServer: AuRunLaunchesServer,
-  AuRunAppLaunchesWithoutJavascriptErrors: AuRunAppLaunchesWithoutJavascriptErrors
+  AuRunAppLaunchesWithoutJavascriptErrors: AuRunAppLaunchesWithoutJavascriptErrors,
+  AuRunRendersPage: AuRunRendersPage,
+  AuRunWatchPicksUpFileChanges: AuRunWatchPicksUpFileChanges
 };
