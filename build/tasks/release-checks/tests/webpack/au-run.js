@@ -1,11 +1,11 @@
 'use strict';
 const Test = require('../test');
 const ExecuteCommand = require('../../tasks/execute-command');
-const CheckForJavascriptErrors = require('../../tasks/check-javascript-errors');
-const TakeScreenShotOfPage = require('../../tasks/take-screenshot-of-page');
-const StepRunner = require('../../step-runner');
-const path = require('path');
-const fs = require('fs');
+// const CheckForJavascriptErrors = require('../../tasks/check-javascript-errors');
+// const TakeScreenShotOfPage = require('../../tasks/take-screenshot-of-page');
+// const StepRunner = require('../../step-runner');
+// const path = require('path');
+// const fs = require('fs');
 
 class AuRunDoesNotThrowCommandLineErrors extends Test {
   constructor() {
@@ -18,7 +18,7 @@ class AuRunDoesNotThrowCommandLineErrors extends Test {
     if (message.toLowerCase().indexOf('error') > -1) {
       this.executeCommand.stop();
       this.fail();
-    } else if (isApplicationAvailableMessage(message)) {
+    } else if (message.indexOf('Compiled successfully') > -1) {
       this.success();
       this.executeCommand.stop();
     }
@@ -100,74 +100,76 @@ class AuRunWatchPicksUpFileChanges extends Test {
   }
 }
 
-class AuRunAppLaunchesWithoutJavascriptErrors extends Test {
-  constructor() {
-    super('au run app launches without javascript errors');
-  }
+// class AuRunAppLaunchesWithoutJavascriptErrors extends Test {
+//   constructor() {
+//     super('au run app launches without javascript errors');
+//   }
 
-  onOutput(message) {
-    this.logger.debug(message);
+//   onOutput(message) {
+//     this.logger.debug(message);
 
-    if (isApplicationAvailableMessage(message)) {
-      const url = getURL(message);
+//     if (isApplicationAvailableMessage(message)) {
+//       const url = getURL(message);
 
-      const checkJavascriptErrorsTask = new CheckForJavascriptErrors(url);
+//       const checkJavascriptErrorsTask = new CheckForJavascriptErrors(url);
 
-      return new StepRunner(checkJavascriptErrorsTask).run()
-      .then(() => {
-        this.success();
-        this.executeCommand.stop();
-      });
-    }
-  }
+//       return new StepRunner(checkJavascriptErrorsTask).run()
+//       .then(() => {
+//         this.success();
+//         this.executeCommand.stop();
+//       });
+//     }
+//   }
 
-  execute() {
-    this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
-    return this.executeCommand.execute();
-  }
-}
+//   execute() {
+//     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
+//     return this.executeCommand.execute();
+//   }
+// }
 
-class AuRunRendersPage extends Test {
-  constructor() {
-    super('au run renders page');
-  }
+// class AuRunRendersPage extends Test {
+//   constructor() {
+//     super('au run renders page');
+//   }
 
-  onOutput(context, message) {
-    this.logger.debug(message);
+//   onOutput(context, message) {
+//     this.logger.debug(message);
 
-    if (isApplicationAvailableMessage(message)) {
-      const url = getURL(message);
+//     if (isApplicationAvailableMessage(message)) {
+//       const url = getURL(message);
 
-      const screenshot = new TakeScreenShotOfPage(url, path.join(context.resultOutputFolder, 'screenshot-of-au-run.png'));
+//       const screenshot = new TakeScreenShotOfPage(url, path.join(context.resultOutputFolder, 'screenshot-of-au-run.png'));
 
-      return new StepRunner(screenshot).run()
-      .then(() => {
-        this.success();
-        this.executeCommand.stop();
-      });
-    }
-  }
+//       return new StepRunner(screenshot).run()
+//       .then(() => {
+//         this.success();
+//         this.executeCommand.stop();
+//       });
+//     }
+//   }
 
-  execute(context) {
-    this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(context, msg));
-    return this.executeCommand.execute();
-  }
-}
+//   execute(context) {
+//     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(context, msg));
+//     return this.executeCommand.execute();
+//   }
+// }
 
-function isApplicationAvailableMessage(msg) {
-  return msg.indexOf('Application Available At: http://localhost') > -1;
-}
+// function isApplicationAvailableMessage(msg) {
+//   return msg.indexOf('Project is running at http://localhost') > -1;
+// }
 
-function getURL(msg) {
-  const regex = /Application Available At: (.*)/;
-  const match = regex.exec(msg);
-  return match[1];
-}
+// function getURL(msg) {
+//   const regex = /Application Available At: (.*)/;
+//   const match = regex.exec(msg);
+//   return match[1];
+// }
 
 module.exports = {
   AuRunDoesNotThrowCommandLineErrors,
   AuRunLaunchesServer,
-  AuRunAppLaunchesWithoutJavascriptErrors,
-  AuRunRendersPage,
   AuRunWatchPicksUpFileChanges
+  // AuRunLaunchesServer,
+  // AuRunAppLaunchesWithoutJavascriptErrors,
+  // AuRunRendersPage,
+  // AuRunWatchPicksUpFileChanges
 };
