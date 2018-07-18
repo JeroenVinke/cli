@@ -21,14 +21,14 @@ class AuProtractorRunsTests extends Test {
 
     if (isApplicationAvailableMessage(message)) {
       this.protractorCommand = new ExecuteCommand('au', ['protractor'], (msg) => this.onProtractorOutput(msg));
-
-      return this.protractorCommand.execute();
+      this.protractorCommand.ignoreStdErr = true;
+      return this.protractorCommand.executeAsNodeScript();
     }
   }
 
   execute() {
     this.executeCommand = new ExecuteCommand('au', ['run'], (msg) => this.onOutput(msg));
-    return this.executeCommand.execute();
+    return this.executeCommand.executeAsNodeScript();
   }
 }
 

@@ -26,7 +26,7 @@ class AuRunDoesNotThrowCommandLineErrors extends Test {
 
   execute() {
     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
-    return this.executeCommand.execute();
+    return this.executeCommand.executeAsNodeScript();
   }
 }
 
@@ -46,7 +46,7 @@ class AuRunLaunchesServer extends Test {
 
   execute() {
     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
-    return this.executeCommand.execute();
+    return this.executeCommand.executeAsNodeScript();
   }
 }
 
@@ -96,7 +96,7 @@ class AuRunWatchPicksUpFileChanges extends Test {
     this.context = context;
 
     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
-    return this.executeCommand.execute();
+    return this.executeCommand.executeAsNodeScript();
   }
 }
 
@@ -123,7 +123,7 @@ class AuRunAppLaunchesWithoutJavascriptErrors extends Test {
 
   execute() {
     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
-    return this.executeCommand.execute();
+    return this.executeCommand.executeAsNodeScript();
   }
 }
 
@@ -150,7 +150,7 @@ class AuRunRendersPage extends Test {
 
   execute(context) {
     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(context, msg));
-    return this.executeCommand.execute();
+    return this.executeCommand.executeAsNodeScript();
   }
 }
 

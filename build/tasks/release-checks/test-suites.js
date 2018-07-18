@@ -16,6 +16,16 @@ const defaultAureliaCLIBundlerTests = [
   new tests.requirejs.AuLintFinishes()
 ];
 
+const defaultWebpackTests = [
+  new tasks.ChangeDirectory(),
+  new tasks.InstallNodeModules(),
+  new tasks.InstallLatestAureliaCLI(),
+  new tests.webpack.AuRunDoesNotThrowCommandLineErrors(),
+  new tests.webpack.AuRunLaunchesServer(),
+  new tests.webpack.AuRunRendersPage(),
+  new tests.webpack.AuRunWatchPicksUpFileChanges()
+];
+
 module.exports = [
   {
     title: 'skeleton-requirejs-esnext',
@@ -35,11 +45,10 @@ module.exports = [
   },
   {
     title: 'skeleton-webpack-esnext',
-    steps: [
-      new tasks.ChangeDirectory(),
-      new tasks.InstallNodeModules(),
-      new tasks.InstallLatestAureliaCLI(),
-      new tests.webpack.AuRunDoesNotThrowCommandLineErrors()
-    ]
+    steps: defaultWebpackTests
+  },
+  {
+    title: 'skeleton-webpack-typescript',
+    steps: defaultWebpackTests
   }
 ];

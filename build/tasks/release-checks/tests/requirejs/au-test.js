@@ -18,7 +18,7 @@ class AuTestRunsTests extends Test {
 
   execute() {
     this.executeCommand = new ExecuteCommand('au', ['test'], (msg) => this.onOutput(msg));
-    return this.executeCommand.execute();
+    return this.executeCommand.executeAsNodeScript();
   }
 }
 

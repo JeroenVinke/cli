@@ -1,8 +1,14 @@
 'use strict';
+const os = require('os');
+const childProcess = require('child_process');
 
 function killProc(proc) {
-  proc.stdin.pause();
-  proc.kill();
+  if (os.platform() === 'win32') {
+    childProcess.exec('taskkill /pid ' + proc.pid + ' /T /F');
+  } else {
+    proc.stdin.pause();
+    proc.kill();
+  }
 }
 
 module.exports = {

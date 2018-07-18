@@ -1,11 +1,11 @@
 'use strict';
 const Test = require('../test');
 const ExecuteCommand = require('../../tasks/execute-command');
-// const CheckForJavascriptErrors = require('../../tasks/check-javascript-errors');
-// const TakeScreenShotOfPage = require('../../tasks/take-screenshot-of-page');
-// const StepRunner = require('../../step-runner');
-// const path = require('path');
-// const fs = require('fs');
+const CheckForJavascriptErrors = require('../../tasks/check-javascript-errors');
+const TakeScreenShotOfPage = require('../../tasks/take-screenshot-of-page');
+const StepRunner = require('../../step-runner');
+const path = require('path');
+const fs = require('fs');
 
 class AuRunDoesNotThrowCommandLineErrors extends Test {
   constructor() {
@@ -26,7 +26,7 @@ class AuRunDoesNotThrowCommandLineErrors extends Test {
 
   execute() {
     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
-    return this.executeCommand.execute();
+    return this.executeCommand.executeAsNodeScript();
   }
 }
 
@@ -46,7 +46,7 @@ class AuRunLaunchesServer extends Test {
 
   execute() {
     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
-    return this.executeCommand.execute();
+    return this.executeCommand.executeAsNodeScript();
   }
 }
 
@@ -55,6 +55,7 @@ class AuRunWatchPicksUpFileChanges extends Test {
     super('au run --watch picks up file changes');
 
     this.fileToChange = fileToChange || path.join('src', 'app.html');
+    this.watchingForFileChangeNotification = false;
   }
 
   changeFile() {
@@ -86,9 +87,13 @@ class AuRunWatchPicksUpFileChanges extends Test {
       setTimeout(() => this.changeFile(), 1000);
     }
 
-    if (message.indexOf('to pending build changes') > -1) {
-      this.success();
-      this.executeCommand.stop();
+    if (message.indexOf('Compiled successfully.') > -1) {
+      if (this.watchingForFileChangeNotification) {
+        this.success();
+        this.executeCommand.stop();
+      } else {
+        this.watchingForFileChangeNotification = true;
+      }
     }
   }
 
@@ -96,80 +101,78 @@ class AuRunWatchPicksUpFileChanges extends Test {
     this.context = context;
 
     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
+    return this.executeCommand.executeAsNodeScript();
+  }
+}
+
+class AuRunAppLaunchesWithoutJavascriptErrors extends Test {
+  constructor() {
+    super('au run app launches without javascript errors');
+  }
+
+  onOutput(message) {
+    this.logger.debug(message);
+
+    if (isApplicationAvailableMessage(message)) {
+      const url = getURL(message);
+
+      const checkJavascriptErrorsTask = new CheckForJavascriptErrors(url);
+
+      return new StepRunner(checkJavascriptErrorsTask).run()
+      .then(() => {
+        this.success();
+        this.executeCommand.stop();
+      });
+    }
+  }
+
+  execute() {
+    this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
     return this.executeCommand.execute();
   }
 }
 
-// class AuRunAppLaunchesWithoutJavascriptErrors extends Test {
-//   constructor() {
-//     super('au run app launches without javascript errors');
-//   }
+class AuRunRendersPage extends Test {
+  constructor() {
+    super('au run renders page');
+  }
 
-//   onOutput(message) {
-//     this.logger.debug(message);
+  onOutput(context, message) {
+    this.logger.debug(message);
 
-//     if (isApplicationAvailableMessage(message)) {
-//       const url = getURL(message);
+    if (isApplicationAvailableMessage(message)) {
+      const url = getURL(message);
 
-//       const checkJavascriptErrorsTask = new CheckForJavascriptErrors(url);
+      const screenshot = new TakeScreenShotOfPage(url, path.join(context.resultOutputFolder, 'screenshot-of-au-run.png'));
 
-//       return new StepRunner(checkJavascriptErrorsTask).run()
-//       .then(() => {
-//         this.success();
-//         this.executeCommand.stop();
-//       });
-//     }
-//   }
+      return new StepRunner(screenshot).run()
+      .then(() => {
+        this.success();
+        this.executeCommand.stop();
+      });
+    }
+  }
 
-//   execute() {
-//     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(msg));
-//     return this.executeCommand.execute();
-//   }
-// }
+  execute(context) {
+    this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(context, msg));
+    return this.executeCommand.executeAsNodeScript();
+  }
+}
 
-// class AuRunRendersPage extends Test {
-//   constructor() {
-//     super('au run renders page');
-//   }
+function isApplicationAvailableMessage(msg) {
+  return msg.indexOf('Project is running at http://localhost') > -1;
+}
 
-//   onOutput(context, message) {
-//     this.logger.debug(message);
-
-//     if (isApplicationAvailableMessage(message)) {
-//       const url = getURL(message);
-
-//       const screenshot = new TakeScreenShotOfPage(url, path.join(context.resultOutputFolder, 'screenshot-of-au-run.png'));
-
-//       return new StepRunner(screenshot).run()
-//       .then(() => {
-//         this.success();
-//         this.executeCommand.stop();
-//       });
-//     }
-//   }
-
-//   execute(context) {
-//     this.executeCommand = new ExecuteCommand('au', ['run', '--watch'], (msg) => this.onOutput(context, msg));
-//     return this.executeCommand.execute();
-//   }
-// }
-
-// function isApplicationAvailableMessage(msg) {
-//   return msg.indexOf('Project is running at http://localhost') > -1;
-// }
-
-// function getURL(msg) {
-//   const regex = /Application Available At: (.*)/;
-//   const match = regex.exec(msg);
-//   return match[1];
-// }
+function getURL(msg) {
+  const regex = /Project is running at (.*)/;
+  const match = regex.exec(msg);
+  return match[1];
+}
 
 module.exports = {
   AuRunDoesNotThrowCommandLineErrors,
   AuRunLaunchesServer,
-  AuRunWatchPicksUpFileChanges
-  // AuRunLaunchesServer,
-  // AuRunAppLaunchesWithoutJavascriptErrors,
-  // AuRunRendersPage,
-  // AuRunWatchPicksUpFileChanges
+  AuRunWatchPicksUpFileChanges,
+  AuRunAppLaunchesWithoutJavascriptErrors,
+  AuRunRendersPage
 };

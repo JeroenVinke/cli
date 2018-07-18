@@ -73,13 +73,6 @@ module.exports = class MatchingTestSuiteSelector {
   }
 
   askUserToPickSuites(suites) {
-    let formatted = '';
-    let i = 1;
-    for (const match of suites) {
-      formatted += `${i}. ${match.title}\r\n`;
-      i++;
-    }
-
     let options = suites.map(x => {
       return {
         displayName: x.title,
@@ -90,7 +83,7 @@ module.exports = class MatchingTestSuiteSelector {
       displayName: 'all suites'
     });
 
-    return ui.multiselect(`Found test suites for:\r\n\ ${formatted}\r\n Which would you like to run?`, options)
+    return ui.multiselect('Found test suites.\r\nWhich would you like to run?', options)
     .then(answers => {
       if (answers.find(x => x.displayName === 'all suites')) {
         return suites;

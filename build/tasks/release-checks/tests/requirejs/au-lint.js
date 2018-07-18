@@ -22,7 +22,7 @@ class AuLintFinishes extends Test {
 
   execute() {
     this.executeCommand = new ExecuteCommand('au', ['lint'], (msg) => this.onOutput(msg));
-    return this.executeCommand.execute();
+    return this.executeCommand.executeAsNodeScript();
   }
 }
 
